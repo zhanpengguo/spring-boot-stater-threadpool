@@ -20,7 +20,39 @@ public class SelfThreadPoolExecutor extends ThreadPoolExecutor {
      */
     private final ConcurrentHashMap<String, Date> timeMap;
 
+    public static SelfThreadPoolExecutor instance() {
+        return instance("self-thread");
+    }
+
+    public static SelfThreadPoolExecutor instance(String threadNamePrefix) {
+        // 默认核心线程数=2*cpu
+        int corePoolSize = Runtime.getRuntime().availableProcessors() * 2;
+        // 默认最大线程数=5*corePoolSize
+        int maximumPoolSize = corePoolSize * 5;
+        // 默认等待时长为60秒
+        int keepAliveTime = 60;
+        // 线程名
+        return instance(corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                threadNamePrefix);
+    }
+
+    public static SelfThreadPoolExecutor instance(int corePoolSize, int maximumPoolSize, int keepAliveTime, String threadNamePrefix) {
+        return new SelfThreadPoolExecutor(corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(),
+                new SelfThreadNameFactory(threadNamePrefix));
+    }
+
     public SelfThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, SelfThreadNameFactory threadFactory) {
+        // 拒绝策略
+        // ThreadPoolExecutor.AbortPolicy();//默认，队列满了丢任务抛出异常
+        // ThreadPoolExecutor.DiscardPolicy();//队列满了丢任务不异常
+        // ThreadPoolExecutor.DiscardOldestPolicy();//将最早进入队列的任务删，之后再尝试加入队列
+        // ThreadPoolExecutor.CallerRunsPolicy();//如果添加到线程池失败，那么主线程会自己去执行该任务
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
         this.timeMap = new ConcurrentHashMap<>();
     }

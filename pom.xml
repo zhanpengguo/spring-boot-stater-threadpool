@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zpg</groupId>
     <artifactId>spring-boot-stater-threadpool</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <name>${artifactId}</name>
     <description>线程池starter</description>
     <properties>
